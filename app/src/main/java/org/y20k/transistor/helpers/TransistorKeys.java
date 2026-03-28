@@ -56,6 +56,7 @@ public interface TransistorKeys {
     String PREF_STATION_URI_SELECTED = "prefStationUriSelected";
     String PREF_TIMER_RUNNING = "prefTimerRunning";
     String PREF_TWO_PANE = "prefTwoPane";
+    String PREF_AUTO_PLAY = "prefAutoPlay";
 
     /* RESULTS */
     String RESULT_FETCH_STATUS = "FETCH_STATUS";

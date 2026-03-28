@@ -122,6 +122,8 @@ public final class MainActivityFragment extends Fragment implements TransistorKe
     private boolean mSleepTimerRunning;
     private String mSleepTimerNotificationMessage;
     private Snackbar mSleepTimerNotification;
+    private boolean mAutoPlayEnabled = false;
+    private boolean mAutoPlayPerformed = false;   // 防止重复自动播放
 
 
     /* Constructor (default) */
@@ -141,6 +143,11 @@ public final class MainActivityFragment extends Fragment implements TransistorKe
 
         // load  state
         loadAppState(mActivity);
+
+        // 读取自动播放设置
+        mAutoPlayEnabled = PreferenceManager.getDefaultSharedPreferences(mActivity)
+                .getBoolean(PREF_AUTO_PLAY, false);
+        mAutoPlayPerformed = false;
 
         // create collection adapter
         mCollectionAdapter = new CollectionAdapter(mActivity, mCurrentStationUrl);
@@ -944,18 +951,28 @@ public final class MainActivityFragment extends Fragment implements TransistorKe
                     // restore last station
                     if (mCurrentStationUrl != null) {
                         mCurrentStation = findStationByUri(Uri.parse(mCurrentStationUrl), newStationList);
-                    } else {
+                    }
+                    if (mCurrentStation == null && !newStationList.isEmpty()) {
                         mCurrentStation = newStationList.get(0);
                     }
-                    // update current station from player service - if necessary
-                    if (mPlayerServiceStation == null) {
-                        mPlayerServiceStation = PlayerService.getCurrentStation();
-                        if (mPlayerServiceStation != null && mPlayerServiceStation.getStreamUri().equals(mCurrentStation.getStreamUri())) {
-                            mCurrentStation = mPlayerServiceStation;
-                        }
+
+                    // 如果 PlayerService 有活动，则同步状态
+                    if (mPlayerServiceStation != null && mPlayerServiceStation.getStreamUri()
+                            .equals(mCurrentStation.getStreamUri())) {
+                        mCurrentStation = mPlayerServiceStation;
                     }
-                    // setup and show player
+
+                    // 设置 player UI
                     setupPlayer(mCurrentStation);
+
+                    // ★ 自动播放逻辑 ★
+                    if (mAutoPlayEnabled && !mAutoPlayPerformed && mCurrentStation != null
+                            && mCurrentStation.getPlaybackState() == PLAYBACK_STATE_STOPPED
+                            && !PlayerService.isPlaybackRunning()) {
+                        // 启动播放
+                        startPlayback(mCurrentStation);
+                        mAutoPlayPerformed = true;   // 标记已自动播放，避免重复
+                    }
                 }
             }
         };

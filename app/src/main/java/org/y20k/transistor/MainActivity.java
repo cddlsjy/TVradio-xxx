@@ -19,6 +19,9 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -420,4 +423,30 @@ public final class MainActivity extends AppCompatActivity implements TransistorK
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem autoPlayItem = menu.findItem(R.id.menu_auto_play);
+        // 读取保存的自动播放状态并设置菜单项的选中状态
+        boolean autoPlayEnabled = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(PREF_AUTO_PLAY, false);
+        autoPlayItem.setChecked(autoPlayEnabled);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_auto_play) {
+            // 切换自动播放状态
+            boolean newState = !item.isChecked();
+            item.setChecked(newState);
+            PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit()
+                    .putBoolean(PREF_AUTO_PLAY, newState)
+                    .apply();
+            Toast.makeText(this, newState ? R.string.auto_play_on : R.string.auto_play_off, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

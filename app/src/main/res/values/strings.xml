@@ -12,6 +12,9 @@
     <string name="menu_delete">Delete</string>
     <string name="menu_rename">Rename</string>
     <string name="menu_shortcut">Place on Home screen</string>
+    <string name="menu_auto_play">启动时自动播放</string>
+    <string name="auto_play_on">自动播放已开启，下次启动应用将自动播放电台</string>
+    <string name="auto_play_off">自动播放已关闭</string>
     <!-- descriptions -->
     <string name="descr_app_icon">App icon depicting an old radio</string>
     <string name="descr_station_options_button">Options</string>
